@@ -6,7 +6,7 @@
     "dev": "next dev",
     "seed": "tsx prisma/seed.ts",
     "test": "vitest run",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint"
   },
