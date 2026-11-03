@@ -52,7 +52,14 @@ export default async function UsedCarPage({ params }: Props) {
         </p>
         <p className="mt-2 text-sm text-neutral-600">{car.inspectionNotes}</p>
       </section>
-
+              {car.status === "AVAILABLE" && (
+        <Link
+          href={`/test-drive?used=${car.stockId}`}
+          className="mt-8 inline-block rounded-lg bg-neutral-900 px-5 py-3 text-base font-medium text-white hover:bg-neutral-700"
+        >
+          Book a test drive
+        </Link>
+      )}
       <section className="mt-8 text-sm text-neutral-600">
         <p>View this car at <span className="font-medium text-neutral-900">{car.showroom.name}</span></p>
         <p>{car.showroom.address}</p>

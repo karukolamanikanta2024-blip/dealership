@@ -70,7 +70,12 @@ export default async function ModelPage({ params, searchParams }: Props) {
           ))}
         </div>
       </section>
-
+             <Link
+        href={`/test-drive?variant=${variant.slug}`}
+        className="mt-8 inline-block rounded-lg bg-neutral-900 px-5 py-3 text-base font-medium text-white hover:bg-neutral-700"
+      >
+        Book a test drive
+      </Link>
       <section className="mt-8 rounded-xl border border-neutral-200 p-6">
         <h2 className="text-lg font-medium">On-road price in {city.name}</h2>
         {breakup ? (
