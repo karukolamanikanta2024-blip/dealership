@@ -1,18 +1,20 @@
 import Link from "next/link";
+import SubmitButton from "./submit-button";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { calculateOnRoadPrice, formatRupees } from "@/lib/pricing";
+import { submitEnquiry } from "./actions";
 
 export const dynamic = "force-dynamic";
 
 type Props = {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ city?: string; variant?: string }>;
+    searchParams: Promise<{ city?: string; variant?: string; enquiry?: string; error?: string }>;
 };
 
 export default async function ModelPage({ params, searchParams }: Props) {
   const { slug } = await params;
-  const { city: cityParam, variant: variantParam } = await searchParams;
+    const { city: cityParam, variant: variantParam, enquiry, error } = await searchParams;
 
   const model = await prisma.carModel.findUnique({
     where: { slug },
@@ -49,6 +51,7 @@ export default async function ModelPage({ params, searchParams }: Props) {
       <h1 className="mt-4 text-3xl font-semibold tracking-tight">{model.name}</h1>
       <p className="mt-1 text-neutral-600">{model.tagline}</p>
 
+      
       <section className="mt-8">
         <h2 className="text-sm font-medium uppercase tracking-wide text-neutral-500">Variant</h2>
         <div className="mt-3 flex flex-wrap gap-2">
@@ -104,7 +107,58 @@ export default async function ModelPage({ params, searchParams }: Props) {
           </p>
         )}
       </section>
-
+       <section id="enquiry" className="mt-8 rounded-xl border border-neutral-200 p-6">
+        <h2 className="text-lg font-medium">Ask about the {model.name}</h2>
+        {enquiry === "sent" ? (
+          <p role="status" className="mt-3 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-800">
+            Thank you. A sales consultant will contact you shortly.
+          </p>
+        ) : (
+          <>
+            {error === "invalid" && (
+              <p role="alert" className="mt-3 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-800">
+                Please check your details and try again.
+              </p>
+            )}
+            <form action={submitEnquiry} className="mt-4 space-y-4">
+              <input type="hidden" name="modelSlug" value={model.slug} />
+              <input type="hidden" name="variantSlug" value={variant.slug} />
+              <input type="hidden" name="cityName" value={city.name} />
+              <label className="block text-sm">
+                Full name
+                <input name="name" type="text" required minLength={2} maxLength={80} autoComplete="name"
+                  className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-base" />
+              </label>
+              <label className="block text-sm">
+                Mobile number
+                <input name="phone" type="tel" inputMode="numeric" required pattern="[6-9][0-9]{9}" maxLength={10}
+                  autoComplete="tel-national"
+                  className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-base" />
+              </label>
+              <label className="block text-sm">
+                Email (optional)
+                <input name="email" type="email" maxLength={120} autoComplete="email"
+                  className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-base" />
+              </label>
+              <label className="block text-sm">
+                Your question (optional)
+                <textarea name="message" rows={3} maxLength={500}
+                  className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-base" />
+              </label>
+              <label className="flex items-start gap-3 text-sm text-neutral-700">
+                <input name="consent" type="checkbox" required className="mt-1 h-4 w-4" />
+                <span>
+                  I agree to be contacted about this enquiry. My details are used only for this purpose and I can ask
+                  the showroom to delete them at any time.
+                </span>
+              </label>
+                           <SubmitButton className="w-full rounded-lg border border-neutral-900 px-4 py-3 text-base font-medium text-neutral-900 hover:bg-neutral-100">
+                Send enquiry
+              </SubmitButton>
+            </form>
+          </>
+        )}
+      </section>
       <section className="mt-8">
         <h2 className="text-lg font-medium">Specifications</h2>
         <dl className="mt-3 grid grid-cols-2 gap-y-3 text-sm">
