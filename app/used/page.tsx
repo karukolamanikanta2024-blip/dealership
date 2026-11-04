@@ -109,6 +109,7 @@ export default async function UsedCars({ searchParams }: Props) {
           ))}
         </ul>
       )}
+      
     </main>
   );
 }

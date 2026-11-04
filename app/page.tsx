@@ -32,6 +32,9 @@ export default async function Home() {
           </li>
         ))}
       </ul>
+       <p className="mt-10 text-sm">
+        <Link href="/login" className="text-neutral-500 underline">Staff login</Link>
+      </p>
     </main>
   );
 }
