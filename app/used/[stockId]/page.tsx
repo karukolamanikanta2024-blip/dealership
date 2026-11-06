@@ -1,11 +1,22 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
+import type { Metadata } from "next";
 import { formatRupees } from "@/lib/pricing";
 
 export const dynamic = "force-dynamic";
 
 type Props = { params: Promise<{ stockId: string }> };
+
+export async function generateMetadata({ params }: { params: Promise<{ stockId: string }> }): Promise<Metadata> {
+  const { stockId } = await params;
+  const car = await prisma.usedCar.findUnique({ where: { stockId } });
+  if (!car || car.status === "SOLD") return { title: "Car not found" };
+  return {
+    title: `${car.year} ${car.modelName} ${car.variantName}: certified used car`,
+    description: `${car.kmDriven.toLocaleString("en-IN")} km, ${car.owners} owner(s). Inspected and certified. View the inspection report and book a test drive.`,
+  };
+}
 
 export default async function UsedCarPage({ params }: Props) {
   const { stockId } = await params;

@@ -2,6 +2,7 @@ import Link from "next/link";
 import SubmitButton from "./submit-button";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
+import type { Metadata } from "next";
 import { calculateOnRoadPrice, formatRupees } from "@/lib/pricing";
 import { submitEnquiry } from "./actions";
 
@@ -11,6 +12,16 @@ type Props = {
   params: Promise<{ slug: string }>;
     searchParams: Promise<{ city?: string; variant?: string; enquiry?: string; error?: string }>;
 };
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const model = await prisma.carModel.findUnique({ where: { slug } });
+  if (!model) return { title: "Car not found" };
+  return {
+    title: `${model.name}: on-road price, specs and test drive`,
+    description: `${model.tagline} See the on-road price breakup for Lucknow and Kanpur and book a test drive.`,
+  };
+}
 
 export default async function ModelPage({ params, searchParams }: Props) {
   const { slug } = await params;
@@ -75,7 +86,7 @@ export default async function ModelPage({ params, searchParams }: Props) {
       </section>
              <Link
         href={`/test-drive?variant=${variant.slug}`}
-        className="mt-8 inline-block rounded-lg bg-neutral-900 px-5 py-3 text-base font-medium text-white hover:bg-neutral-700"
+                  className="mt-8 inline-block rounded-lg bg-teal-700 px-5 py-3 text-base font-medium text-white hover:bg-teal-800"
       >
         Book a test drive
       </Link>
