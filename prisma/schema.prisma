@@ -199,6 +199,7 @@ model Lead {
   firstResponseAt DateTime?
   aiSummary       String?
   aiReplyDraft    String?
+    aiDraftSource   String?
   showroomId      Int
   showroom        Showroom    @relation(fields: [showroomId], references: [id])
   assignedToId    Int?

@@ -1,9 +1,11 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
+import DraftButton from "./draft-button";
+import DraftBox from "./draft-box";
 import { getSession } from "@/lib/session";
 import { responseState, type TimerState } from "@/lib/response-timer";
 import { logout } from "../login/actions";
-import { updateLeadStatus } from "./actions";
+import { updateLeadStatus ,draftWithAI} from "./actions";
 import AutoRefresh from "./auto-refresh";
 
 export const dynamic = "force-dynamic";
@@ -91,6 +93,19 @@ export default async function Inbox() {
                   {" · "}
                   {l.createdAt.toLocaleString("en-IN", { timeZone: IST, day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })}
                 </p>
+                                <form action={draftWithAI} className="mt-4">
+                  <input type="hidden" name="leadId" value={l.id} />
+                  <DraftButton label={l.aiReplyDraft ? "Redo draft" : "Draft reply"} />
+                </form>
+                {l.aiSummary && (
+                  <div className="mt-3 rounded-lg bg-neutral-50 p-4">
+                    <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">
+                      {l.aiDraftSource === "ai" ? "AI draft — check before sending" : "Template draft (AI not used)"}
+                    </p>
+                    <p className="mt-2 text-sm text-neutral-700">{l.aiSummary}</p>
+                    <DraftBox key={l.aiReplyDraft ?? ""} draft={l.aiReplyDraft ?? ""} />
+                  </div>
+                )}
                 <form action={updateLeadStatus} className="mt-4 flex flex-wrap items-center gap-2">
                   <input type="hidden" name="leadId" value={l.id} />
                   <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs capitalize">
