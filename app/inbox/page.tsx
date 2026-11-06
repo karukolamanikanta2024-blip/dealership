@@ -7,6 +7,7 @@ import { responseState, type TimerState } from "@/lib/response-timer";
 import { logout } from "../login/actions";
 import { updateLeadStatus ,draftWithAI} from "./actions";
 import AutoRefresh from "./auto-refresh";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -54,11 +55,18 @@ export default async function Inbox() {
             {user.name} · {user.role === "ADMIN" ? "Administrator (all leads)" : "Sales consultant (your leads)"}
           </p>
         </div>
-        <form action={logout}>
-          <button type="submit" className="rounded-lg border border-neutral-300 px-3 py-1.5 text-sm hover:border-neutral-500">
-            Log out
-          </button>
-        </form>
+                <div className="flex items-center gap-2">
+          {user.role === "ADMIN" && (
+            <Link href="/admin" className="rounded-lg border border-neutral-300 px-3 py-1.5 text-sm hover:border-neutral-500">
+              Prices and stock
+            </Link>
+          )}
+          <form action={logout}>
+            <button type="submit" className="rounded-lg border border-neutral-300 px-3 py-1.5 text-sm hover:border-neutral-500">
+              Log out
+            </button>
+          </form>
+        </div>
       </div>
 
       {leads.length === 0 ? (
