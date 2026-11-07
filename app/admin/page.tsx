@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { formatRupees } from "@/lib/pricing";
 import { logout } from "../login/actions";
-import { updateVariantPrice, updatePriceRule, updateUsedCar } from "./actions";
+import { updateVariantPrice, updatePriceRule, updateUsedCar, addUsedCar } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +25,8 @@ export default async function Admin({ searchParams }: Props) {
     orderBy: [{ modelId: "asc" }, { exShowroomPrice: "asc" }],
   });
   const usedCars = await prisma.usedCar.findMany({ orderBy: { stockId: "asc" } });
+    const showrooms = await prisma.showroom.findMany({ orderBy: { id: "asc" } });
+  const thisYear = new Date().getFullYear(); 
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-12">
@@ -50,7 +52,9 @@ export default async function Admin({ searchParams }: Props) {
       )}
       {sp.error && (
         <p role="alert" className="mt-6 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-800">
-          Nothing was saved. Please check the values (no blanks, road tax 0 to 30%, a valid date).
+                    {sp.error === "duplicate"
+            ? "A car with that stock ID already exists."
+            : "Nothing was saved. Please check the values (no blanks, road tax 0 to 30%, a valid date)."}
         </p>
       )}
 
@@ -134,6 +138,86 @@ export default async function Admin({ searchParams }: Props) {
             </li>
           ))}
         </ul>
+      </section>
+            <section id="add-car" className="mt-12 scroll-mt-8">
+        <h2 className="text-xl font-semibold">Add a used car</h2>
+        <p className="mt-1 text-sm text-neutral-600">
+          New cars are listed as Available straight away. Enter the registration number masked, for example
+          UP32 ** ****. The full number is never stored.
+        </p>
+        <form action={addUsedCar} className="mt-4 rounded-xl border border-neutral-200 p-5">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <label className="text-xs text-neutral-600">
+              Stock ID
+              <input name="stockId" required pattern="[A-Za-z]{2}-[0-9]{3,6}" placeholder="UC-1250" className={field} />
+            </label>
+            <label className="text-xs text-neutral-600">
+              Model
+              <input name="modelName" required minLength={2} maxLength={40} placeholder="Model H" className={field} />
+            </label>
+            <label className="text-xs text-neutral-600">
+              Variant
+              <input name="variantName" required maxLength={40} placeholder="ZX" className={field} />
+            </label>
+            <label className="text-xs text-neutral-600">
+              Fuel
+              <select name="fuel" defaultValue="PETROL" className={field}>
+                <option value="PETROL">Petrol</option>
+                <option value="DIESEL">Diesel</option>
+                <option value="CNG">CNG</option>
+                <option value="ELECTRIC">Electric</option>
+              </select>
+            </label>
+            <label className="text-xs text-neutral-600">
+              Transmission
+              <select name="transmission" defaultValue="MANUAL" className={field}>
+                <option value="MANUAL">Manual</option>
+                <option value="AUTOMATIC">Automatic</option>
+              </select>
+            </label>
+            <label className="text-xs text-neutral-600">
+              Colour
+              <input name="colour" required minLength={2} maxLength={30} className={field} />
+            </label>
+            <label className="text-xs text-neutral-600">
+              Year
+              <input name="year" type="number" required min={2005} max={thisYear + 1} step={1} className={field} />
+            </label>
+            <label className="text-xs text-neutral-600">
+              Kilometres driven
+              <input name="kmDriven" type="number" required min={0} max={500000} step={1} className={field} />
+            </label>
+            <label className="text-xs text-neutral-600">
+              Owners
+              <input name="owners" type="number" required min={1} max={6} step={1} className={field} />
+            </label>
+            <label className="text-xs text-neutral-600">
+              Price ₹
+              <input name="price" type="number" required min={50000} step={1} className={field} />
+            </label>
+            <label className="text-xs text-neutral-600">
+              Registration (masked)
+              <input name="registrationMasked" required pattern="[A-Za-z]{2}[0-9]{2} [*]{2} [*]{4}" placeholder="UP32 ** ****" className={field} />
+            </label>
+            <label className="text-xs text-neutral-600">
+              Inspection score (0 to 100)
+              <input name="inspectionScore" type="number" required min={0} max={100} step={1} className={field} />
+            </label>
+            <label className="text-xs text-neutral-600">
+              Showroom
+              <select name="showroomId" className={field}>
+                {showrooms.map((s) => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
+              </select>
+            </label>
+            <label className="text-xs text-neutral-600 sm:col-span-3">
+              Inspection notes
+              <textarea name="inspectionNotes" required minLength={5} maxLength={300} rows={2} className={field} />
+            </label>
+          </div>
+          <button type="submit" className={`${saveBtn} mt-4`}>Add car</button>
+        </form>
       </section>
     </main>
   );

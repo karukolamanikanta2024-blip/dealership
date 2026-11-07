@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { formatRupees } from "@/lib/pricing";
+import CarIllustration from "@/components/car-illustration";
 
 export const dynamic = "force-dynamic";
 
@@ -86,17 +87,22 @@ export default async function UsedCars({ searchParams }: Props) {
         </div>
       ) : (
         <ul className="mt-8 divide-y divide-neutral-200 border-y border-neutral-200">
-          {cars.map((c) => (
+                  {cars.map((c) => (
             <li key={c.id}>
               <Link href={`/used/${c.stockId}`} className="flex items-center justify-between gap-4 py-5 hover:bg-neutral-50">
-                <span>
-                  <span className="block text-lg font-medium">
-                    {c.year} {c.modelName} {c.variantName}
+                <span className="flex items-center gap-4">
+                  <span className="hidden w-28 shrink-0 overflow-hidden rounded-lg sm:block">
+                    <CarIllustration />
                   </span>
-                  <span className="block text-sm capitalize text-neutral-500">
-                    {c.kmDriven.toLocaleString("en-IN")} km · {c.fuel.toLowerCase()} · {c.transmission.toLowerCase()} · {c.owners} {c.owners === 1 ? "owner" : "owners"}
+                  <span>
+                    <span className="block text-lg font-medium">
+                      {c.year} {c.modelName} {c.variantName}
+                    </span>
+                    <span className="block text-sm capitalize text-neutral-500">
+                      {c.kmDriven.toLocaleString("en-IN")} km · {c.fuel.toLowerCase()} · {c.transmission.toLowerCase()} · {c.owners} {c.owners === 1 ? "owner" : "owners"}
+                    </span>
+                    <span className="block text-sm text-neutral-500">{c.showroom.name}</span>
                   </span>
-                  <span className="block text-sm text-neutral-500">{c.showroom.name}</span>
                 </span>
                 <span className="text-right">
                   <span className="block font-medium">{formatRupees(c.price)}</span>

@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
-import { priceRuleSchema, usedCarSchema, variantPriceSchema } from "@/lib/admin-schemas";
+import { priceRuleSchema, usedCarSchema, variantPriceSchema, newUsedCarSchema } from "@/lib/admin-schemas";
 
 // Every admin action checks the role again on the server
 async function requireAdmin() {
@@ -52,5 +52,24 @@ export async function updateUsedCar(formData: FormData) {
     where: { id: parsed.data.carId },
     data: { price: parsed.data.price, status: parsed.data.status },
   });
+  redirect("/admin?saved=1");
+}
+
+export async function addUsedCar(formData: FormData) {
+  await requireAdmin();
+  const parsed = newUsedCarSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) redirect("/admin?error=invalid#add-car");
+  const d = parsed.data;
+
+  const showroom = await prisma.showroom.findUnique({ where: { id: d.showroomId } });
+  if (!showroom) redirect("/admin?error=invalid#add-car");
+
+  try {
+    await prisma.usedCar.create({ data: { ...d, status: "AVAILABLE" } });
+  } catch (e) {
+    // Stock IDs are unique in the database
+    if ((e as { code?: string }).code === "P2002") redirect("/admin?error=duplicate#add-car");
+    throw e;
+  }
   redirect("/admin?saved=1");
 }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import CarIllustration from "@/components/car-illustration";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import type { Metadata } from "next";
@@ -33,6 +34,9 @@ export default async function UsedCarPage({ params }: Props) {
         {car.year} {car.modelName} {car.variantName}
       </h1>
       <p className="mt-1 text-sm text-neutral-500">Stock ID {car.stockId} · {car.showroom.name}</p>
+            <div className="mt-6 overflow-hidden rounded-xl">
+        <CarIllustration label={`${car.year} ${car.modelName} ${car.variantName} illustration`} />
+      </div>
 
       <div className="mt-6 flex items-center gap-3">
         <p className="text-2xl font-semibold">{formatRupees(car.price)}</p>

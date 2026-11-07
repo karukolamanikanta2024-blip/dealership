@@ -28,3 +28,24 @@ export const usedCarSchema = z.object({
   price: wholeRupees(50_000, 100_000_000),
   status: z.enum(["AVAILABLE", "BOOKED", "SOLD"]),
 });
+
+const upper = (v: unknown) => (typeof v === "string" ? v.trim().toUpperCase() : v);
+const thisYear = new Date().getFullYear();
+
+export const newUsedCarSchema = z.object({
+  stockId: z.preprocess(upper, z.string().regex(/^[A-Z]{2}-\d{3,6}$/)),
+  modelName: z.string().trim().min(2).max(40),
+  variantName: z.string().trim().min(1).max(40),
+  fuel: z.enum(["PETROL", "DIESEL", "CNG", "ELECTRIC"]),
+  transmission: z.enum(["MANUAL", "AUTOMATIC"]),
+  year: wholeRupees(2005, thisYear + 1),
+  kmDriven: wholeRupees(0, 500_000),
+  owners: wholeRupees(1, 6),
+  // Only a masked number is accepted, so a full registration number can never be stored
+  registrationMasked: z.preprocess(upper, z.string().regex(/^[A-Z]{2}\d{2} \*{2} \*{4}$/)),
+  colour: z.string().trim().min(2).max(30),
+  price: wholeRupees(50_000, 100_000_000),
+  inspectionScore: wholeRupees(0, 100),
+  inspectionNotes: z.string().trim().min(5).max(300),
+  showroomId: z.coerce.number().int().positive(),
+});

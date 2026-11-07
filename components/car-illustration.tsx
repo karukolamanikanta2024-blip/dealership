@@ -1,6 +1,7 @@
-export default function CarIllustration({ label }: { label: string }) {
+export default function CarIllustration({ label }: { label?: string }) {
+  const a11y = label ? { role: "img" as const, "aria-label": label } : { "aria-hidden": true as const };
   return (
-    <svg viewBox="0 0 320 140" role="img" aria-label={label} className="w-full">
+    <svg viewBox="0 0 320 140" className="w-full" {...a11y}>
       <rect width="320" height="140" className="fill-neutral-100" />
       <rect x="30" y="126" width="260" height="2" className="fill-neutral-200" />
       <rect x="36" y="70" width="248" height="38" rx="14" className="fill-neutral-300" />
