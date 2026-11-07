@@ -5,6 +5,8 @@ import { prisma } from "@/lib/db";
 import type { Metadata } from "next";
 import { calculateOnRoadPrice, formatRupees } from "@/lib/pricing";
 import { submitEnquiry } from "./actions";
+import EmiCalculator from "./emi-calculator";
+import CarIllustration from "@/components/car-illustration";
 
 export const dynamic = "force-dynamic";
 
@@ -61,6 +63,9 @@ export default async function ModelPage({ params, searchParams }: Props) {
       <Link href="/" className="text-sm text-neutral-500 hover:text-neutral-800">← All models</Link>
       <h1 className="mt-4 text-3xl font-semibold tracking-tight">{model.name}</h1>
       <p className="mt-1 text-neutral-600">{model.tagline}</p>
+            <div className="mt-6 overflow-hidden rounded-xl">
+        <CarIllustration label={`${model.name} illustration`} />
+      </div>
 
       
       <section className="mt-8">
@@ -118,6 +123,7 @@ export default async function ModelPage({ params, searchParams }: Props) {
           </p>
         )}
       </section>
+            {breakup && <EmiCalculator key={breakup.total} price={breakup.total} />}
        <section id="enquiry" className="mt-8 rounded-xl border border-neutral-200 p-6">
         <h2 className="text-lg font-medium">Ask about the {model.name}</h2>
         {enquiry === "sent" ? (
